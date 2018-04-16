@@ -9,6 +9,8 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
+import com.typesafe.config.ConfigFactory
+
 import scala.io.StdIn
 
 object WebServer {
@@ -16,6 +18,7 @@ object WebServer {
 
     implicit val system = ActorSystem("my-system")
     implicit val materializer = ActorMaterializer()
+    val conf = ConfigFactory.load()
     // needed for the future flatMap/onComplete in the end
     implicit val executionContext = system.dispatcher
 
@@ -26,10 +29,10 @@ object WebServer {
           complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, s"<h1>Say hello to ${milo}</h1>"))
         }
       }
-
-    val bindingFuture = Http().bindAndHandle(route, "localhost", 8080)
-
-    println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
+    val interface = conf.getString("webserver.interface")
+    val port = conf.getInt("webserver.port")
+    val bindingFuture = Http().bindAndHandle(route, interface, port)
+    println(s"Server online at http://$interface:$port/\nPress RETURN to stop...")
     StdIn.readLine() // let it run until user presses return
     bindingFuture
       .flatMap(_.unbind()) // trigger unbinding from the port
