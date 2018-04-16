@@ -22,7 +22,8 @@ object WebServer {
     val route =
       path("hello") {
         get {
-          complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to akka-http</h1>"))
+          val milo: Dog = new Dog("Milo", Some(4), new Location(1.34, 20.328), FemaleGender)
+          complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, s"<h1>Say hello to ${milo}</h1>"))
         }
       }
 
